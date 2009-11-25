@@ -4,7 +4,7 @@
 # Author: Denis Klimov
 
 __author__ = "Denis Klimov"
-__version__ = "0.1"
+__version__ = "0.2"
 __date__ = "Wed Nov 25 13:33:51 YEKT 2009"
 __copyright__ = "Copyright (c) 2009 Denis Klimov"
 __license__ = "BSD"

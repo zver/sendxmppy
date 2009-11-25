@@ -1,6 +1,6 @@
 %define module_name sendxmppy
 Name: %module_name
-Version: 0.1
+Version: 0.2
 Release: alt1
 
 Summary: XMPP message sender from CLI
@@ -27,6 +27,9 @@ XMPP message sender from CLI
 %files -f INSTALLED_FILES
 
 %changelog
+* Wed Nov 25 2009 Denis Klimov <zver@altlinux.org> 0.2-alt1
+- new version
+
 * Wed Nov 25 2009 Denis Klimov <zver@altlinux.org> 0.1-alt1
 - Initial build for ALT Linux
 
