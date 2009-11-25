@@ -40,7 +40,11 @@ You may set params in file $HOME/.sendxmppy with syntax on first line:
 import os
 import sys
 import getopt
-import jabber
+
+try:
+	from jabber import jabber
+except ImportError:
+	import jabber
 
 Server = ''
 Port = 5222
