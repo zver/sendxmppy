@@ -29,12 +29,12 @@
 
 def usage():
 	print """Usage syntax:
-sendxmppy [-f <config_file>] [-m <message>] [-u <username>] [-s <server>] [-r <resource>] <recipient list>
+sendxmppy [-f <config_file>] [-m <message>] [-u <username>] [-j <jserver>[:<port>]] [-r <resource>] <recipient list>
 
 <recipient list> - space separated JIDs
 
 You may set params in file $HOME/.sendxmppy with syntax on first line:
-<username>@<jserver> <password>
+<username>@<server>[:port] <password>
 """
 
 import os
@@ -52,7 +52,7 @@ File = None
 
 # Get params from command line
 try:
-	opts, args = getopt.getopt(sys.argv[1:], "f:m:u:s:r:", ["file=", "message=", "user=", "server=", "resource="])
+	opts, args = getopt.getopt(sys.argv[1:], "f:m:u:p:j:r:", ["file=", "message=", "user=", "password=", "jserver=", "resource="])
 except getopt.GetoptError, err:
 	print str(err)
 	usage()
@@ -72,8 +72,6 @@ if os.path.isfile(conf_file_path):
 	if len(line) == 2:
 		jid, Password = line
 		Username, Server = jid.split('@')
-		if Server.find(':') != -1:
-			Server, Port = Server.split(':')
 	else:
 		print "Error systax first line in %s" % conf_file_path
 		usage()
@@ -105,12 +103,23 @@ for o, a in opts:
 	if o in ("-m", "--message"):
 		Message = a
 	elif o in ("-u", "--user"):
-		Username = a
-	elif o in ("-s", "--server"):
-		Server = a
+		Username = a.strip()
+	elif o in ("-p", "--Password"):
+		Password = a
+	elif o in ("-j", "--jserver"):
+		Server = a.strip()
 	elif o in ("-r", "--resource"):
 		Resource = a
 
+if Server.find(':') != -1:
+	Server, Port = Server.split(':')
+	Port = Port.strip()
+	import re
+	if re.compile(r'^\d+$').match(Port):
+		Port = int(Port)
+	else:
+		print "Invalid port number: %s" % Port
+		sys.exit(5)
 
 # Check params
 if not (Server and Username and Password and recipients):
