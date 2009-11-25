@@ -1,0 +1,134 @@
+#!/usr/bin/python
+
+# XMPP message sender
+# Copyright (C) 2009, Denis E. Klimov <zver@altlinux.org>
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * Neither the name of the <organization> nor the
+#       names of its contributors may be used to endorse or promote products
+#       derived from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY COPYRIGHT HOLDERS ''AS IS'' AND ANY
+# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL <copyright holder> BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+def usage():
+	print """Usage syntax:
+sendxmppy [-f <config_file>] [-m <message>] [-u <username>] [-s <server>] [-r <resource>] <recipient list>
+
+<recipient list> - space separated JIDs
+
+You may set params in file $HOME/.sendxmppy with syntax on first line:
+<username>@<jserver> <password>
+"""
+
+import os
+import sys
+import getopt
+import jabber
+
+Server = ''
+Port = 5222
+Username = ''
+Password = ''
+Resource = 'sendxmppy'
+Message = ''
+File = None
+
+# Get params from command line
+try:
+	opts, args = getopt.getopt(sys.argv[1:], "f:m:u:s:r:", ["file=", "message=", "user=", "server=", "resource="])
+except getopt.GetoptError, err:
+	print str(err)
+	usage()
+	sys.exit(2)
+
+for o, a in opts:
+	if o in ("-f", "--file"):
+		File = a
+
+
+# Get default settings from config file
+conf_file_path = File if File else os.path.join(os.environ['HOME'], '.sendxmppy')
+if os.path.isfile(conf_file_path):
+	f = open(conf_file_path, "r")
+	line = f.readline().split()
+	f.close()
+	if len(line) == 2:
+		jid, Password = line
+		Username, Server = jid.split('@')
+		if Server.find(':') != -1:
+			Server, Port = Server.split(':')
+	else:
+		print "Error systax first line in %s" % conf_file_path
+		usage()
+		sys.exit(1)
+elif File:
+	print "Config file %s not exist" % File
+	sys.exit(4)
+
+
+# Get recipients list
+recipients = []
+all_params = sys.argv[1:]
+all_params.reverse()
+for p in all_params:
+	if p[:1] == '-':
+		recipients.pop()
+		break
+	recipients.append(p)
+
+# Addition split recipients
+new_recipients = []
+for r in recipients:
+	for r2 in r.split():
+		new_recipients.append(r2)
+recipients = new_recipients
+
+
+for o, a in opts:
+	if o in ("-m", "--message"):
+		Message = a
+	elif o in ("-u", "--user"):
+		Username = a
+	elif o in ("-s", "--server"):
+		Server = a
+	elif o in ("-r", "--resource"):
+		Resource = a
+
+
+# Check params
+if not (Server and Username and Password and recipients):
+	usage()
+	sys.exit(3)
+
+if not Message:
+	Message = sys.stdin.read()
+
+# Send msg
+con = jabber.Client(host=Server, port=Port)
+con.connect()
+if not con.auth(Username, Password, Resource):
+	print "Can't auth on server"
+	sys.exit(4)
+con.sendInitPresence()
+
+for r in recipients:
+	msg = jabber.Message(r, Message)
+	msg.setType('chat')
+	con.send(msg)
