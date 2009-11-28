@@ -1,7 +1,7 @@
 %define module_name sendxmppy
 Name: %module_name
 Version: 0.2
-Release: alt1
+Release: alt2
 
 Summary: XMPP message sender from CLI
 
@@ -11,6 +11,8 @@ Url: http://git.altlinux.org/people/zver/packages/sendxmppy.git
 
 Source: %name-%version.tar
 BuildArch: noarch
+
+BuildRequires: python-dev
 
 %description
 XMPP message sender from CLI
@@ -27,6 +29,9 @@ XMPP message sender from CLI
 %files -f INSTALLED_FILES
 
 %changelog
+* Sat Nov 28 2009 Denis Klimov <zver@altlinux.org> 0.2-alt2
+- add build require to python-dev
+
 * Wed Nov 25 2009 Denis Klimov <zver@altlinux.org> 0.2-alt1
 - new version
 
