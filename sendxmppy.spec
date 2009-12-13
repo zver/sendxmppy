@@ -1,7 +1,7 @@
 %define module_name sendxmppy
 Name: %module_name
-Version: 0.2
-Release: alt2
+Version: 0.3
+Release: alt1
 
 Summary: XMPP message sender from CLI
 
@@ -29,6 +29,9 @@ XMPP message sender from CLI
 %files -f INSTALLED_FILES
 
 %changelog
+* Sun Dec 13 2009 Denis Klimov <zver@altlinux.org> 0.3-alt1
+- new version
+
 * Sat Nov 28 2009 Denis Klimov <zver@altlinux.org> 0.2-alt2
 - add build require to python-dev
 
