@@ -29,11 +29,19 @@
 
 def usage():
 	print """Usage syntax:
-sendxmppy [-f <config_file>] [-m <message>] [-u <username>] [-j <jserver>[:<port>]] [-r <resource>] <recipient list>
+sendxmppy [-f <config_file>] [-m <message>] [-u <username>] [-j <jserver>[:<port>]] [-p <password>] [-r <resource>] [-c] <recipient list>
 
 <recipient list> - space separated JIDs
+-f, --file          Path to config file, instead default $HOME/.sendxmppy
+-m, --message       Text of message, this may be obtained from pipe
+-u, --username      Jabber username on server
+-j, --jserver       Jabber server:port, default port: 5222
+-p, --password      Jabber password
+-r, --resource      Jabber resource for message, default: sendxmppy
+-c, --chat          Send chat type message
 
-You may set params in file $HOME/.sendxmppy with syntax on first line:
+
+You may set default params in file $HOME/.sendxmppy with syntax on first line:
 <username>@<server>[:port] <password>
 """
 
@@ -53,10 +61,11 @@ Password = ''
 Resource = 'sendxmppy'
 Message = ''
 File = None
+Chat = False
 
 # Get params from command line
 try:
-	opts, args = getopt.getopt(sys.argv[1:], "f:m:u:p:j:r:", ["file=", "message=", "user=", "password=", "jserver=", "resource="])
+	opts, args = getopt.getopt(sys.argv[1:], "f:m:u:p:j:r:c", ["file=", "message=", "user=", "password=", "jserver=", "resource=", "chat"])
 except getopt.GetoptError, err:
 	print str(err)
 	usage()
@@ -91,7 +100,8 @@ all_params = sys.argv[1:]
 all_params.reverse()
 for p in all_params:
 	if p[:1] == '-':
-		recipients.pop()
+		if not p in ("-c", "--chat"):
+			recipients.pop()
 		break
 	recipients.append(p)
 
@@ -108,12 +118,14 @@ for o, a in opts:
 		Message = a
 	elif o in ("-u", "--user"):
 		Username = a.strip()
-	elif o in ("-p", "--Password"):
+	elif o in ("-p", "--password"):
 		Password = a
 	elif o in ("-j", "--jserver"):
 		Server = a.strip()
 	elif o in ("-r", "--resource"):
 		Resource = a
+	elif o in ("-c", "--chat"):
+		Chat = True
 
 if Server.find(':') != -1:
 	Server, Port = Server.split(':')
@@ -143,5 +155,6 @@ con.sendInitPresence()
 
 for r in recipients:
 	msg = jabber.Message(r, Message)
-	msg.setType('chat')
+	if Chat:
+		msg.setType('chat')
 	con.send(msg)
