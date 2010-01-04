@@ -31,6 +31,9 @@ XMPP message sender from CLI
 %files -f INSTALLED_FILES
 
 %changelog
+* Mon Jan 04 2010 Denis Klimov <zver@altlinux.org> 0.3-alt2
+- add require to python-module-jabberpy (Closes: #22678)
+
 * Sun Dec 13 2009 Denis Klimov <zver@altlinux.org> 0.3-alt1
 - new version
 
