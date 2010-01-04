@@ -1,7 +1,7 @@
 %define module_name sendxmppy
 Name: %module_name
 Version: 0.3
-Release: alt1
+Release: alt2
 
 Summary: XMPP message sender from CLI
 
@@ -13,6 +13,8 @@ Source: %name-%version.tar
 BuildArch: noarch
 
 BuildRequires: python-dev
+
+Requires: python-module-jabberpy
 
 %description
 XMPP message sender from CLI
