@@ -1,7 +1,7 @@
 %define module_name sendxmppy
 Name: %module_name
-Version: 0.3
-Release: alt2
+Version: 0.4
+Release: alt1
 
 Summary: XMPP message sender from CLI
 
@@ -31,6 +31,9 @@ XMPP message sender from CLI
 %files -f INSTALLED_FILES
 
 %changelog
+* Wed Jan 06 2010 Denis Klimov <zver@altlinux.org> 0.4-alt1
+- new version
+
 * Mon Jan 04 2010 Denis Klimov <zver@altlinux.org> 0.3-alt2
 - add require to python-module-jabberpy (Closes: #22678)
 
