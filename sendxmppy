@@ -29,9 +29,10 @@
 
 def usage():
 	print """Usage syntax:
-sendxmppy [-f <config_file>] [-m <message>] [-u <username>] [-j <jserver>[:<port>]] [-p <password>] [-r <resource>] [-c] <recipient list>
+sendxmppy [-d] [-f <config_file>] [-m <message>] [-u <username>] [-j <jserver>[:<port>]] [-p <password>] [-r <resource>] [-c] <recipient list>
 
 <recipient list> - space separated JIDs
+-d, --debug         Turn on debug
 -f, --file          Path to config file, instead default $HOME/.sendxmppy
 -m, --message       Text of message, this may be obtained from pipe
 -u, --username      Jabber username on server
@@ -39,6 +40,7 @@ sendxmppy [-f <config_file>] [-m <message>] [-u <username>] [-j <jserver>[:<port
 -p, --password      Jabber password
 -r, --resource      Jabber resource for message, default: sendxmppy
 -c, --chat          Send chat type message
+
 
 
 You may set default params in file $HOME/.sendxmppy with syntax on first line:
@@ -62,10 +64,11 @@ Resource = 'sendxmppy'
 Message = ''
 File = None
 Chat = False
+debug_flags = []
 
 # Get params from command line
 try:
-	opts, args = getopt.getopt(sys.argv[1:], "f:m:u:p:j:r:c", ["file=", "message=", "user=", "password=", "jserver=", "resource=", "chat"])
+	opts, args = getopt.getopt(sys.argv[1:], "f:m:u:p:j:r:cd", ["file=", "message=", "user=", "password=", "jserver=", "resource=", "chat", "debug"])
 except getopt.GetoptError, err:
 	print str(err)
 	usage()
@@ -100,7 +103,7 @@ all_params = sys.argv[1:]
 all_params.reverse()
 for p in all_params:
 	if p[:1] == '-':
-		if not p in ("-c", "--chat"):
+		if not p in ("-c", "--chat", "-d", "--debug"):
 			recipients.pop()
 		break
 	recipients.append(p)
@@ -126,6 +129,8 @@ for o, a in opts:
 		Resource = a
 	elif o in ("-c", "--chat"):
 		Chat = True
+	elif o in ("-d", "--debug"):
+		debug_flags = ['always']
 
 if Server.find(':') != -1:
 	Server, Port = Server.split(':')
@@ -146,7 +151,7 @@ if not Message:
 	Message = sys.stdin.read()
 
 # Send msg
-con = jabber.Client(host=Server, port=Port)
+con = jabber.Client(host=Server, port=Port, debug=debug_flags)
 con.connect()
 if not con.auth(Username, Password, Resource):
 	print "Can't auth on server"
