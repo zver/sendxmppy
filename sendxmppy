@@ -148,6 +148,8 @@ if not (Server and Username and Password and recipients):
 	sys.exit(3)
 
 if not Message:
+	import codecs
+	sys.stdin = codecs.getreader("utf-8")(sys.stdin)
 	Message = sys.stdin.read()
 
 # Send msg
