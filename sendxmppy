@@ -72,7 +72,7 @@ try:
 except getopt.GetoptError, err:
 	print str(err)
 	usage()
-	sys.exit(2)
+	sys.exit(1)
 
 for o, a in opts:
 	if o in ("-f", "--file"):
@@ -91,10 +91,10 @@ if os.path.isfile(conf_file_path):
 	else:
 		print "Error systax first line in %s" % conf_file_path
 		usage()
-		sys.exit(1)
+		sys.exit(2)
 elif File:
 	print "Config file %s not exist" % File
-	sys.exit(4)
+	sys.exit(3)
 
 
 # Get recipients list
@@ -140,12 +140,12 @@ if Server.find(':') != -1:
 		Port = int(Port)
 	else:
 		print "Invalid port number: %s" % Port
-		sys.exit(5)
+		sys.exit(4)
 
 # Check params
 if not (Server and Username and Password and recipients):
 	usage()
-	sys.exit(3)
+	sys.exit(5)
 
 if not Message:
 	import codecs
@@ -155,9 +155,15 @@ if not Message:
 # Send msg
 con = jabber.Client(host=Server, port=Port, debug=debug_flags)
 con.connect()
+
+def disconnectedCB(con):
+	print "Network error"
+	sys.exit(6)
+con.setDisconnectHandler(disconnectedCB)
+
 if not con.auth(Username, Password, Resource):
 	print "Can't auth on server"
-	sys.exit(4)
+	sys.exit(7)
 con.sendInitPresence()
 
 for r in recipients:
